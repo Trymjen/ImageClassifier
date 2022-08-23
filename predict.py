@@ -1,5 +1,5 @@
 import argparse
-import myutils
+import utils
 import torch
 from torch import optim, nn
 import torch.nn.functional as F
@@ -20,10 +20,10 @@ in_arg = parser.parse_args()
 def predict(image_path, checkpoint, device, topk=5):
     to_device = torch.device('cuda' if torch.cuda.is_available() and device=='gpu' else 'cpu')
     
-    model, optimizer = myutils.load_checkpoint(checkpoint)
+    model, optimizer = utils.load_checkpoint(checkpoint)
     model.to(to_device)
     model.eval()
-    image_tensor = myutils.process_image(image_path)
+    image_tensor = utils.process_image(image_path)
 
     with torch.no_grad():
         image_tensor = image_tensor.to(to_device)
@@ -40,8 +40,10 @@ def predict(image_path, checkpoint, device, topk=5):
 
 def main():
     probs, classes = predict(in_arg.image, in_arg.checkpoint, in_arg.gpu, topk=in_arg.top_k)
+    
     with open(in_arg.category_names, 'r') as f:
         cat_to_name = json.load(f)
+        
     flower_classes = [cat_to_name[j] for j in classes]
     print(flower_classes)
     print(probs)

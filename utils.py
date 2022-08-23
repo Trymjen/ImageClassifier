@@ -3,7 +3,7 @@ from torch import optim, nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms, models
 from PIL import Image
-import model_builder
+from model import create_model
 
 def load_data(data_dir='flowers'):
     
@@ -46,7 +46,7 @@ def save_checkpoint(model, optimizer, path='checkpoint.pth', arch='vgg13', hidde
     
 def load_checkpoint(filepath):
     checkpoint = torch.load(filepath)
-    model, optimizer = model_builder.create_model(arch=checkpoint['arch'], hidden_units=checkpoint['hidden_units'])
+    model, optimizer = create_model(arch=checkpoint['arch'], hidden_units=checkpoint['hidden_units'])
     model.class_to_idx = checkpoint['class_to_idx']
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state'])
@@ -63,5 +63,4 @@ def process_image(image):
                                      transforms.ToTensor(),
                                      transforms.Normalize([0.485, 0.456, 0.406], 
                                                           [0.229, 0.224, 0.225])])
-    img_tensor = preprocess(pil_img)
-    return img_tensor
+    return preprocess(pil_img)

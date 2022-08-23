@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms, models
 from PIL import Image
 
-class Classifier(nn.Module):
+class Model(nn.Module):
     def __init__(self, input_size, output_size, hidden_layers, drop_p=0.2):
         super().__init__()
         self.hidden_layers = nn.ModuleList([nn.Linear(input_size, hidden_layers[0])])
@@ -16,8 +16,7 @@ class Classifier(nn.Module):
         for fc in self.hidden_layers:
             x = F.relu(fc(x))
             x = self.dropout(x)
-        x = F.log_softmax(self.output(x), dim=1)
-        return x
+        return F.log_softmax(self.output(x), dim=1)
     
 def create_model(arch='vgg13', hidden_units=1024, learnrate = 0.001, device='gpu'):
     to_device = torch.device('cuda' if torch.cuda.is_available() and device=='gpu' else 'cpu')
@@ -37,7 +36,7 @@ def create_model(arch='vgg13', hidden_units=1024, learnrate = 0.001, device='gpu
     for param in model.parameters():
         param.requires_grad = False
     
-    model.classifier = Classifier(in_size, 102, [hidden_units])
+    model.classifier = Model(in_size, 102, [hidden_units])
 
     criterion = nn.NLLLoss()
     optimizer = optim.Adam(model.classifier.parameters(), lr=learnrate)
